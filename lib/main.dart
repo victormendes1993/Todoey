@@ -1,7 +1,7 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'package:flutter/material.dart';
-import 'package:todoey/tasks_screen.dart';
+import 'package:todoey/screens/tasks_screen.dart';
 
 void main() => runApp(MyApp());
 
