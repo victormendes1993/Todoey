@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:todoey/widgets/tasks_checkbox.dart';
 
 class TaskTile extends StatefulWidget {
   const TaskTile({super.key, required this.text});
+
   final String text;
+  final bool isChecked = false;
 
   @override
   State<TaskTile> createState() => _TaskTileState();
@@ -12,13 +15,18 @@ class _TaskTileState extends State<TaskTile> {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      title:  Text(
+      title: Text(
         widget.text,
-        style: const TextStyle(
+        style: TextStyle(
+          decoration: widget.isChecked
+              ? TextDecoration.lineThrough
+              : TextDecoration.none,
           decorationColor: Colors.black,
         ),
       ),
-      trailing: Checkbox(value: false, onChanged: (bool? checked){}),
+      trailing: TasksCheckbox(
+        checkBoxState: widget.isChecked,
+      ),
     );
   }
 }
