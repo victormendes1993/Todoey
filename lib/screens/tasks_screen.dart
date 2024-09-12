@@ -2,9 +2,17 @@
 import 'package:flutter/material.dart';
 import 'package:todoey/widgets/tasks_list.dart';
 import 'package:todoey/screens/add_tasks_sheet.dart';
+import '../models/task.dart';
 
-class TasksScreen extends StatelessWidget {
+class TasksScreen extends StatefulWidget {
   const TasksScreen({super.key});
+
+  @override
+  State<TasksScreen> createState() => _TasksScreenState();
+}
+
+class _TasksScreenState extends State<TasksScreen> {
+  List<Task> tasks = [];
 
   @override
   Widget build(BuildContext context) {
@@ -21,13 +29,19 @@ class TasksScreen extends StatelessWidget {
           showModalBottomSheet(
             isScrollControlled: true,
             context: context,
-            builder: (context) => AddTasksSheet(),
+            builder: (context) => AddTasksSheet(
+              addTask: (String newTaskTitle) {
+                setState(() {
+                  tasks.add(Task(name: newTaskTitle));
+                });
+              },
+            ),
           );
         },
       ),
       backgroundColor: Colors.lightBlueAccent,
       body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Container(
             padding: EdgeInsets.only(
@@ -38,7 +52,7 @@ class TasksScreen extends StatelessWidget {
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const <Widget>[
+              children: <Widget>[
                 CircleAvatar(
                   radius: 25.0,
                   backgroundColor: Colors.white,
@@ -57,7 +71,7 @@ class TasksScreen extends StatelessWidget {
                       fontWeight: FontWeight.w700),
                 ),
                 Text(
-                  '12 Tasks',
+                  '${tasks.length.toString()} Tasks',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 15.0,
@@ -76,7 +90,18 @@ class TasksScreen extends StatelessWidget {
                   topRight: Radius.circular(20.0),
                 ),
               ),
-              child: TasksList(),
+              child: Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: tasks.isNotEmpty
+                    ? TasksList(tasksList: tasks)
+                    : Text(
+                        'It`s so empty here, add todoeys',
+                        style: TextStyle(
+                          fontSize: 20.0,
+                          color: Colors.grey,
+                        ),
+                      ),
+              ),
             ),
           )
         ],

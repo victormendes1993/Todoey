@@ -1,7 +1,16 @@
 import 'package:flutter/material.dart';
 
-class AddTasksSheet extends StatelessWidget {
-  const AddTasksSheet({super.key});
+class AddTasksSheet extends StatefulWidget {
+  const AddTasksSheet({super.key, required this.addTask});
+
+  final Function(String) addTask;
+
+  @override
+  State<AddTasksSheet> createState() => _AddTasksSheetState();
+}
+
+class _AddTasksSheetState extends State<AddTasksSheet> {
+  late String newTaskTitle;
 
   @override
   Widget build(BuildContext context) {
@@ -34,9 +43,12 @@ class AddTasksSheet extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const TextField(
+              TextField(
                 textAlign: TextAlign.center,
                 autofocus: true,
+                onChanged: (newTitle) {
+                  newTaskTitle = newTitle;
+                },
               ),
               const SizedBox(height: 20),
               FilledButton(
@@ -44,7 +56,8 @@ class AddTasksSheet extends StatelessWidget {
                   backgroundColor: WidgetStatePropertyAll(Colors.lightBlue),
                 ),
                 onPressed: () {
-                  Navigator.pop(context); // Close the bottom sheet
+                  widget.addTask(newTaskTitle);
+                  Navigator.pop(context);
                 },
                 child: const Text('Go'),
               ),
