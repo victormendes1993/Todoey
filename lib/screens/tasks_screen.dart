@@ -1,16 +1,11 @@
 // ignore_for_file: prefer_const_constructors
-
 import 'package:flutter/material.dart';
 import 'package:todoey/widgets/tasks_list.dart';
+import 'package:todoey/screens/add_tasks_sheet.dart';
 
-class TasksScreen extends StatefulWidget {
+class TasksScreen extends StatelessWidget {
   const TasksScreen({super.key});
 
-  @override
-  State<TasksScreen> createState() => _TasksScreenState();
-}
-
-class _TasksScreenState extends State<TasksScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,33 +19,9 @@ class _TasksScreenState extends State<TasksScreen> {
         ),
         onPressed: () {
           showModalBottomSheet(
+            isScrollControlled: true,
             context: context,
-            builder: (BuildContext context) {
-              return Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TextField(
-                      decoration: InputDecoration(labelText: 'Enter something'),
-                    ),
-                    SizedBox(height: 10),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Icon(Icons.add),
-                        ElevatedButton(
-                          onPressed: () {
-                            Navigator.pop(context); // Close the bottom sheet
-                          },
-                          child: Text('Go'),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              );
-            },
+            builder: (context) => AddTasksSheet(),
           );
         },
       ),
@@ -69,7 +40,7 @@ class _TasksScreenState extends State<TasksScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: const <Widget>[
                 CircleAvatar(
-                  radius: 30.0,
+                  radius: 25.0,
                   backgroundColor: Colors.white,
                   child: Icon(
                     color: Colors.lightBlueAccent,
@@ -113,4 +84,3 @@ class _TasksScreenState extends State<TasksScreen> {
     );
   }
 }
-

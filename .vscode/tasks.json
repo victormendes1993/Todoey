@@ -1,0 +1,30 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "echo",
+            "type": "shell",
+            "command": "echo Hello"
+        },
+        {
+            "label": "Launch Nexus 5 API 35 Emulator",
+            "type": "shell",
+            "command": "C:\\Users\\victo\\AppData\\Local\\Android\\Sdk\\emulator\\emulator.exe",
+            "args": [
+                "-avd",
+                "Nexus_5_API_35"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "Launch Pixel 8 API 35 Emulator",
+            "type": "shell",
+            "command": "C:\\Users\\victo\\AppData\\Local\\Android\\Sdk\\emulator\\emulator.exe",
+            "args": [
+                "-avd",
+                "Pixel_8_API_35"
+            ],
+            "problemMatcher": []
+        }
+    ]
+}
