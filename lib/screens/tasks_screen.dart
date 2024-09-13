@@ -91,7 +91,9 @@ class _TasksScreenState extends State<TasksScreen> {
                 ),
               ),
               child: Padding(
-                padding: const EdgeInsets.all(10.0),
+                padding: tasks.isNotEmpty
+                    ? EdgeInsets.zero
+                    : EdgeInsets.only(left: 15.0, right: 15.0, top: 25.0),
                 child: tasks.isNotEmpty
                     ? TasksList(tasksList: tasks)
                     : Text(
