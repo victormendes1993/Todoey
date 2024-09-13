@@ -1,18 +1,12 @@
 // ignore_for_file: prefer_const_constructors
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:todoey/models/task_data.dart';
 import 'package:todoey/widgets/tasks_list.dart';
 import 'package:todoey/screens/add_tasks_sheet.dart';
-import '../models/task.dart';
 
-class TasksScreen extends StatefulWidget {
+class TasksScreen extends StatelessWidget {
   const TasksScreen({super.key});
-
-  @override
-  State<TasksScreen> createState() => _TasksScreenState();
-}
-
-class _TasksScreenState extends State<TasksScreen> {
-  List<Task> tasks = [];
 
   @override
   Widget build(BuildContext context) {
@@ -29,13 +23,7 @@ class _TasksScreenState extends State<TasksScreen> {
           showModalBottomSheet(
             isScrollControlled: true,
             context: context,
-            builder: (context) => AddTasksSheet(
-              addTask: (String newTaskTitle) {
-                setState(() {
-                  tasks.add(Task(name: newTaskTitle));
-                });
-              },
-            ),
+            builder: (context) => AddTasksSheet(),
           );
         },
       ),
@@ -71,7 +59,7 @@ class _TasksScreenState extends State<TasksScreen> {
                       fontWeight: FontWeight.w700),
                 ),
                 Text(
-                  '${tasks.length.toString()} Tasks',
+                  '${Provider.of<TaskData>(context).tasks.length.toString()} Tasks',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 15.0,
@@ -91,11 +79,11 @@ class _TasksScreenState extends State<TasksScreen> {
                 ),
               ),
               child: Padding(
-                padding: tasks.isNotEmpty
+                padding: Provider.of<TaskData>(context).tasks.isNotEmpty
                     ? EdgeInsets.zero
                     : EdgeInsets.only(left: 15.0, right: 15.0, top: 25.0),
-                child: tasks.isNotEmpty
-                    ? TasksList(tasksList: tasks)
+                child: Provider.of<TaskData>(context).tasks.isNotEmpty
+                    ? TasksList()
                     : Text(
                         'It`s so empty here, add todoeys',
                         style: TextStyle(

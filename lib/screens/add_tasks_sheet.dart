@@ -1,19 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:todoey/models/task.dart';
+import 'package:todoey/models/task_data.dart';
 
-class AddTasksSheet extends StatefulWidget {
-  const AddTasksSheet({super.key, required this.addTask});
-
-  final Function(String) addTask;
-
-  @override
-  State<AddTasksSheet> createState() => _AddTasksSheetState();
-}
-
-class _AddTasksSheetState extends State<AddTasksSheet> {
-  late String newTaskTitle;
+class AddTasksSheet extends StatelessWidget {
+  const AddTasksSheet({super.key});
 
   @override
   Widget build(BuildContext context) {
+    String newTaskTitle = '';
     return Padding(
       padding:
           EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
@@ -56,7 +51,9 @@ class _AddTasksSheetState extends State<AddTasksSheet> {
                   backgroundColor: WidgetStatePropertyAll(Colors.lightBlue),
                 ),
                 onPressed: () {
-                  widget.addTask(newTaskTitle);
+                  Provider.of<TaskData>(context, listen: false).tasks.add(
+                        Task(name: newTaskTitle),
+                      );
                   Navigator.pop(context);
                 },
                 child: const Text('Go'),
