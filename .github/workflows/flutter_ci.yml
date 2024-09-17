@@ -1,0 +1,30 @@
+name: Flutter CI Workflow
+
+# This triggers the workflow on pushes or pull requests to the main branch
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Check out the code
+      - uses: actions/checkout@v2
+
+      # Set up Flutter (you can specify the version)
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.0.0' # Adjust to your Flutter version
+
+      # Install dependencies (pub get)
+      - name: Install dependencies
+        run: flutter pub get
+
+      # Run tests
+      - name: Run tests
+        run: flutter test
