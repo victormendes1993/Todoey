@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:todoey/models/class/task.dart';
-import 'package:todoey/models/database/database_helper.dart';
+import 'package:todoey/models/task.dart';
+import 'package:todoey/models/database_helper.dart';
 import 'package:todoey/widgets/alert_pop_up.dart';
 
 class TaskData extends ChangeNotifier {
@@ -29,7 +29,7 @@ class TaskData extends ChangeNotifier {
     notifyListeners(); // Notify listeners to update UI
   }
 
-  Future<String?> addTask({
+  Future<void> addTask({
     required String taskDescription,
     String category = '',
     int priority = 2,
@@ -40,13 +40,9 @@ class TaskData extends ChangeNotifier {
       priority: priority,
     );
     _tasks.add(newTask);
-    try {
-      await DatabaseHelper().persistTask(newTask.toMap());
-      notifyListeners();
-      return null;
-    } catch (e) {
-      return e.toString();
-    }
+
+    await DatabaseHelper().persistTask(newTask.toMap());
+    notifyListeners();
   }
 
   void toggleTaskCompletion(int index) {

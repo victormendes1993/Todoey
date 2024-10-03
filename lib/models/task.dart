@@ -1,11 +1,13 @@
 class Task {
   Task({
     required this.title,
+    this.id,
     this.isCompleted = false,
     this.category = '',
     this.priority = 2,
   });
 
+  int? id;
   String title;
   String category;
   bool isCompleted;
@@ -13,6 +15,7 @@ class Task {
 
   Map<String, dynamic> toMap() {
     return {
+      'id': id,
       'title': title,
       'isCompleted': isCompleted ? 1 : 0,
       'category': category,

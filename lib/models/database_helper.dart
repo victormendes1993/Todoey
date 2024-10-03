@@ -1,15 +1,19 @@
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:todoey/models/class/task.dart';
+import 'package:todoey/models/task.dart';
 
 class DatabaseHelper {
   // Singleton instance of DatabaseHelper
-  static final DatabaseHelper _instance = DatabaseHelper();
+  static final DatabaseHelper _instance = DatabaseHelper._internal();
+
+  // Private constructor
+  DatabaseHelper._internal();
 
   // Factory constructor to return the singleton instance
   factory DatabaseHelper() => _instance;
 
   static Database? _database;
+
 
   // Getter for the database
   Future<Database> get database async {
@@ -44,9 +48,17 @@ class DatabaseHelper {
     ''');
   }
 
-  Future<int> persistTask(Map<String, dynamic> task) async {
+  Future<int?> persistTask(Map<String, dynamic> task) async {
     final db = await database;
-    return await db.insert('tasks', task);
+    try {
+      return await db.insert('tasks', task);
+    }catch(e){
+      // ignore: avoid_print
+      print('THE ERROR IS: ${e.toString()}');
+      return null;
+    }
+
+
   }
 
   Future<List<Task>> fetchTasks() async {
@@ -57,6 +69,7 @@ class DatabaseHelper {
     created by calling generator for each index in the range*/
     return List.generate(taskMaps.length, (i) {
       return Task(
+        id: taskMaps[i]['id'],
         title: taskMaps[i]['title'],
         isCompleted: taskMaps[i]['isCompleted'] == 1,
         category: taskMaps[i]['category'],

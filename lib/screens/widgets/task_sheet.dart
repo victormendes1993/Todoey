@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:todoey/models/task_data.dart';
@@ -98,57 +100,43 @@ class _TaskSheetState extends State<TaskSheet> {
       style: FilledButton.styleFrom(
         backgroundColor: Colors.lightBlue,
       ),
-      onPressed: () async {
+      onPressed: () {
         final taskDescription = _taskController.text;
+        final taskData = Provider.of<TaskData>(context, listen: false);
 
-        if (taskDescription.isNotEmpty) {
-          if (widget.initialTaskTitle == null) {
-            // Add new task
-            final String? error =
-                await Provider.of<TaskData>(context, listen: false)
-                    .addTask(taskDescription: taskDescription);
-
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (error != null) {
-                AlertPopUp.showErrorAlert(
-                  context: context,
-                  desc: error,
-                  title: 'Failed To Add Task',
-                );
-              } else {
-                Navigator.pop(context); // Close the sheet if added successfully
-              }
-            });
-          } else if (widget.initialTaskTitle != null) {
-            // Edit existing task
-            final bool success =
-                Provider.of<TaskData>(context, listen: false).editSelectedTask(
-              atTitle: widget.initialTaskTitle!,
-              newTaskDescription: taskDescription,
-            );
-
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (!success) {
-                AlertPopUp.showErrorAlert(
-                  context: context,
-                  title: 'Task Not Found',
-                  desc: 'The task you are trying to edit does not exist.',
-                );
-              } else {
-                Navigator.pop(context); // Close the sheet after editing
-              }
-            });
-          }
-        } else {
-          // Show error if task description is empty
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            AlertPopUp.showErrorAlert(
-              context: context,
-              title: 'Empty Task',
-              desc: 'The task description cannot be empty.',
-            );
-          });
+        // Check for empty task description
+        if (taskDescription.isEmpty) {
+          AlertPopUp.showErrorAlert(
+            context: context,
+            title: 'Empty Task',
+            desc: 'The task description cannot be empty.',
+          );
+          return;
         }
+
+        // Edit existing task
+        if (widget.initialTaskTitle != null) {
+          taskData.editSelectedTask(
+            atTitle: widget.initialTaskTitle!,
+            newTaskDescription: taskDescription,
+          );
+          Navigator.pop(context);
+          return;
+        }
+
+        taskData.addTask(taskDescription: taskDescription);
+
+        Navigator.pop(context);
+        /*
+        if (error != null && context.mounted) {
+          AlertPopUp.showErrorAlert(
+            context: context,
+            desc: error,
+            title: 'Failed To Add Task',
+          );
+        } else if(context.mounted){
+              Navigator.pop(context); // Close the sheet after adding the task
+        }*/
       },
       child: const Text('Go'),
     );
