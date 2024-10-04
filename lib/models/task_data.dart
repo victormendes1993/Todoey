@@ -10,15 +10,48 @@ class TaskData extends ChangeNotifier {
 
   bool get isEmpty => _tasks.isEmpty;
 
-  bool get areAllDone => _tasks.every((task) => task.isCompleted);
-
   int get length => _tasks.length;
-
-  int get doneLength => _tasks.where((task) => task.isCompleted).length;
 
   String getName(int index) => getTaskOfIndex(index).title;
 
   bool getIsDone(int index) => getTaskOfIndex(index).isCompleted;
+
+  Task getTaskOfIndex(int index) {
+    if (index < 0 || index >= _tasks.length) {
+      throw IndexError.withLength(_tasks.length, index);
+    }
+    return _tasks[index];
+  }
+
+  //TODO: Update editTaskTitle
+  bool editTaskTitle({
+    required String atTitle,
+    required String newTaskDescription,
+  }) {
+    final index = _tasks.indexWhere((task) => task.title == atTitle);
+    if (index != -1) {
+      final task = getTaskOfIndex(index);
+      task.title = newTaskDescription;
+      notifyListeners();
+      return true;
+    }
+    return false;
+  }
+
+  //TODO: Update deleteTaskByTitle
+  void deleteTaskByTitle(String title) {
+    _tasks.removeWhere((task) => task.title == title);
+    notifyListeners();
+  }
+
+  //Finished Methods
+
+  Future<void> toggleSingleTask(int index) async {
+    final task = getTaskOfIndex(index);
+    task.isCompleted = !task.isCompleted; // Toggle completion
+    await DatabaseHelper().toggleTaskCompletion(task.id, task.isCompleted);
+    notifyListeners();
+  }
 
   Future<void> loadTasksFromDb() async {
     _tasks.clear(); // Pre-built list method to clear existing tasks.
@@ -29,8 +62,8 @@ class TaskData extends ChangeNotifier {
     notifyListeners(); // Notify listeners to update UI
   }
 
-  Future<void> addTask({
-    required String taskDescription,
+  Future<void> addNewTask(
+    String taskDescription, {
     String category = '',
     int priority = 2,
   }) async {
@@ -40,49 +73,24 @@ class TaskData extends ChangeNotifier {
       priority: priority,
     );
     _tasks.add(newTask);
-
-    await DatabaseHelper().persistTask(newTask.toMap());
+    await DatabaseHelper().addNewTask(newTask.toMap());
     notifyListeners();
   }
 
-  void toggleTaskCompletion(int index) {
-    final task = getTaskOfIndex(index);
-    task.isCompleted = !task.isCompleted; // Toggle completion
-    notifyListeners();
-  }
+  Future<void> toggleAllTasks() async {
+    // Determine if all tasks are currently completed
+    bool allCompleted = _tasks.every((task) => task.isCompleted);
 
-  void toggleAll() {
+    // Toggle all tasks to the opposite state
     for (var task in _tasks) {
-      task.isCompleted = !task.isCompleted;
+      task.isCompleted = !allCompleted;
     }
+    // Update all tasks in the database
+    await DatabaseHelper().toggleAll(!allCompleted);
     notifyListeners();
   }
 
-  void editTask(int index, String newTaskDescription) {
-    final task = getTaskOfIndex(index);
-    task.title = newTaskDescription;
-    task.isCompleted = false;
-    notifyListeners();
-  }
-
-  bool editSelectedTask({
-    required String atTitle,
-    required String newTaskDescription,
-  }) {
-    final index = _tasks.indexWhere((task) => task.title == atTitle);
-    if (index != -1) {
-      editTask(index, newTaskDescription);
-      return true;
-    }
-    return false;
-  }
-
-  void deleteTaskByTitle(String title) {
-    _tasks.removeWhere((task) => task.title == title);
-    notifyListeners();
-  }
-
-  void deleteCompletedTasks(BuildContext context) {
+  Future<void> deleteCompletedTasks(BuildContext context) async {
     if (isEmpty) {
       AlertPopUp.showErrorAlert(
         context: context,
@@ -92,13 +100,7 @@ class TaskData extends ChangeNotifier {
       return;
     }
     _tasks.removeWhere((task) => task.isCompleted);
+    await DatabaseHelper().deleteCompletedTasks();
     notifyListeners();
-  }
-
-  Task getTaskOfIndex(int index) {
-    if (index < 0 || index >= _tasks.length) {
-      throw IndexError.withLength(_tasks.length, index);
-    }
-    return _tasks[index];
   }
 }

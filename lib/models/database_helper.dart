@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:todoey/models/task.dart';
@@ -13,7 +15,6 @@ class DatabaseHelper {
   factory DatabaseHelper() => _instance;
 
   static Database? _database;
-
 
   // Getter for the database
   Future<Database> get database async {
@@ -48,17 +49,14 @@ class DatabaseHelper {
     ''');
   }
 
-  Future<int?> persistTask(Map<String, dynamic> task) async {
+  Future<int?> addNewTask(Map<String, dynamic> task) async {
     final db = await database;
     try {
       return await db.insert('tasks', task);
-    }catch(e){
-      // ignore: avoid_print
+    } catch (e) {
       print('THE ERROR IS: ${e.toString()}');
       return null;
     }
-
-
   }
 
   Future<List<Task>> fetchTasks() async {
@@ -76,5 +74,42 @@ class DatabaseHelper {
         priority: taskMaps[i]['priority'],
       );
     });
+  }
+
+  Future<void> deleteCompletedTasks() async {
+    final db = await database;
+    await db.delete(
+      'tasks',
+      where: 'isCompleted = ?',
+      whereArgs: [1],
+    );
+  }
+
+  Future<void> toggleTaskCompletion(int? id, bool isCompleted) async {
+    try {
+      final db = await database;
+      await db.update(
+        'tasks',
+        {'isCompleted': isCompleted ? 1 : 0},
+        where: 'id = ?',
+        whereArgs: [id],
+      );
+    } catch (e) {
+      print('Error updating task completion: $e');
+    }
+  }
+
+  Future<void> toggleAll(bool isCompleted) async {
+    final db = await database;
+
+    Batch batch = db.batch();
+
+    batch.update(
+      'tasks',
+      {'isCompleted': isCompleted ? 1 : 0},
+      where: '1 = 1', //Can remove the where completely
+    );
+
+    await batch.commit(noResult: true);
   }
 }

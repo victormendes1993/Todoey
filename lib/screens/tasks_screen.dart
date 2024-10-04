@@ -115,7 +115,7 @@ class _TasksScreenState extends State<TasksScreen>
           taskTitle: listenableTaskData.getName(index),
           isChecked: listenableTaskData.getIsDone(index),
           toggleCheckbox: (checkboxState) {
-            taskData.toggleTaskCompletion(index);
+            taskData.toggleSingleTask(index);
           },
           index: index,
         );
@@ -197,7 +197,7 @@ class _TasksScreenState extends State<TasksScreen>
         title: 'Delete Completed',
         onPressed: () {
           taskData.deleteCompletedTasks(context);
-          if (fabKey.currentState != null) {
+          if (fabKey.currentState!.isOpen) {
             fabKey.currentState!.toggle();
           }
         },
@@ -206,7 +206,7 @@ class _TasksScreenState extends State<TasksScreen>
       _buildFabChildrenButton(
           title: 'Complete All',
           onPressed: () {
-            taskData.toggleAll();
+            taskData.toggleAllTasks();
 
             if (fabKey.currentState != null) {
               fabKey.currentState!.toggle();

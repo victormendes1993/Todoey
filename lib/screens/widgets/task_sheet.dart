@@ -116,27 +116,15 @@ class _TaskSheetState extends State<TaskSheet> {
 
         // Edit existing task
         if (widget.initialTaskTitle != null) {
-          taskData.editSelectedTask(
+          taskData.editTaskTitle(
             atTitle: widget.initialTaskTitle!,
             newTaskDescription: taskDescription,
           );
           Navigator.pop(context);
           return;
         }
-
-        taskData.addTask(taskDescription: taskDescription);
-
+        taskData.addNewTask(taskDescription);
         Navigator.pop(context);
-        /*
-        if (error != null && context.mounted) {
-          AlertPopUp.showErrorAlert(
-            context: context,
-            desc: error,
-            title: 'Failed To Add Task',
-          );
-        } else if(context.mounted){
-              Navigator.pop(context); // Close the sheet after adding the task
-        }*/
       },
       child: const Text('Go'),
     );
