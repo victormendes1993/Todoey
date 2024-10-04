@@ -78,6 +78,10 @@ class _TaskSheetState extends State<TaskSheet> {
             _buildTextField(),
             const SizedBox(height: 20),
             _buildSubmitButton(context),
+            //TODO: Create a category selector during add task
+            //TODO: Create a priority selector during add task
+            //todo: Allow edits to the Category
+            //todo: Allow edits to the Priority
           ],
         ),
       ),

@@ -44,6 +44,9 @@ class TaskData extends ChangeNotifier {
     notifyListeners();
   }
 
+  //Todo: Create a setPriority method
+  //Todo: Create a setCategory method
+
   //Finished Methods
 
   Future<void> toggleSingleTask(int index) async {
