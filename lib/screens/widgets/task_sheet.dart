@@ -7,9 +7,10 @@ import 'package:todoey/models/task_data.dart';
 import 'package:todoey/widgets/alert_pop_up.dart';
 
 class TaskSheet extends StatefulWidget {
-  const TaskSheet({super.key, this.initialTaskTitle});
+  const TaskSheet({super.key, this.initialTaskTitle, this.index});
 
-  final String? initialTaskTitle; // Use a nullable parameter for edit mode
+  final String? initialTaskTitle;
+  final int? index;
 
   @override
   State<TaskSheet> createState() => _TaskSheetState();
@@ -18,6 +19,8 @@ class TaskSheet extends StatefulWidget {
 class _TaskSheetState extends State<TaskSheet> {
   final TextEditingController _taskController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
+  int priority = 2;
+  String category = 'No Category';
 
   @override
   void initState() {
@@ -112,15 +115,14 @@ class _TaskSheetState extends State<TaskSheet> {
   }
 
   Widget _buildDropDownPriorityMenu() {
-    final List<DropdownMenuEntry<String>> items = [
-      DropdownMenuEntry(value: 'Low', label: 'Low'),
-      DropdownMenuEntry(value: 'Normal', label: 'Normal'),
-      DropdownMenuEntry(value: 'High', label: 'High'),
+    final List<DropdownMenuEntry<int>> items = [
+      DropdownMenuEntry(value: 1, label: 'High'),
+      DropdownMenuEntry(value: 2, label: 'Normal'),
+      DropdownMenuEntry(value: 3, label: 'Low'),
     ];
 
-    void onPressed(String? selected) {
-      Provider.of<TaskData>(context, listen: false)
-          .setSelectedPriority(selected!);
+    void onPressed(int? selectedPriority) {
+      priority = selectedPriority!;
     }
 
     return customDropDownMenu(
@@ -143,9 +145,8 @@ class _TaskSheetState extends State<TaskSheet> {
       ),
     ];
 
-    void onPressed(String? selected) {
-      Provider.of<TaskData>(context, listen: false)
-          .setSelectedCategory(selected!);
+    void onPressed(String? selectedCategory) {
+      category = selectedCategory!;
     }
 
     return customDropDownMenu(
@@ -155,12 +156,12 @@ class _TaskSheetState extends State<TaskSheet> {
     );
   }
 
-  DropdownMenu<String> customDropDownMenu({
-    required List<DropdownMenuEntry<String>> items,
-    required void Function(String?)? onPressed,
+  DropdownMenu<E> customDropDownMenu<E>({
+    required List<DropdownMenuEntry<E>> items,
+    required void Function(E?)? onPressed,
     required String label,
   }) {
-    return DropdownMenu<String>(
+    return DropdownMenu<E>(
       expandedInsets: EdgeInsets.zero,
       inputDecorationTheme: InputDecorationTheme(
         labelStyle: lightGreyLabelBottomSheet,
@@ -177,20 +178,6 @@ class _TaskSheetState extends State<TaskSheet> {
   }
 
   Widget _buildSubmitButton(BuildContext context) {
-    int? priorityToInt() {
-      switch (
-          Provider.of<TaskData>(context, listen: false).getSelectedPriority()) {
-        case 'High':
-          return 1;
-        case 'Normal':
-          return 2;
-        case 'Low':
-          return 3;
-        default:
-          return null;
-      }
-    }
-
     return FilledButton(
       style: FilledButton.styleFrom(
         backgroundColor: Colors.lightBlueAccent,
@@ -210,20 +197,22 @@ class _TaskSheetState extends State<TaskSheet> {
         }
 
         // Edit existing task
-        if (widget.initialTaskTitle != null) {
-          taskData.editTaskTitle(
-            atTitle: widget.initialTaskTitle!,
+        if (widget.initialTaskTitle != null && widget.index != null) {
+          taskData.editTask(
+            index: widget.index!,
             newTaskDescription: taskDescription,
-            newPriority: priorityToInt()!,
-            newCategory: Provider.of<TaskData>(context, listen: false)
-                .getSelectedCategory(),
+            newPriority: priority,
+            newCategory: category,
           );
           Navigator.pop(context);
           return;
         }
-        taskData.addNewTask(taskDescription,
-            priority: priorityToInt()!,
-            category: taskData.getSelectedCategory());
+
+        taskData.addNewTask(
+          taskDescription,
+          priority: priority,
+          category: category,
+        );
         Navigator.pop(context);
       },
       child: const Text('Send'),

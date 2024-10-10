@@ -113,17 +113,17 @@ class DatabaseHelper {
     await batch.commit(noResult: true);
   }
 
-  Future<void> deleteTaskByTitle(String title) async {
+  Future<void> deleteTaskById(int id) async {
     final db = await database;
     await db.delete(
       'tasks',
-      where: 'title = ?',
-      whereArgs: [title],
+      where: 'id = ?',
+      whereArgs: [id],
     );
   }
 
-  Future<void> editTaskTitle(
-    String title,
+  Future<void> editTask(
+    int id,
     String newTitle,
     int newPriority,
     String newCategory,
@@ -136,8 +136,8 @@ class DatabaseHelper {
         'priority': newPriority,
         'category': newCategory,
       },
-      where: 'title = ?',
-      whereArgs: [title],
+      where: 'id = ?',
+      whereArgs: [id],
     );
   }
 }

@@ -121,10 +121,12 @@ class _TasksScreenState extends State<TasksScreen>
         return TaskTile(
           taskTitle: listenableTaskData.getTitle(index),
           isChecked: listenableTaskData.getIsDone(index),
+          priority: listenableTaskData.getPriority(index),
+          category: listenableTaskData.getCategory(index),
+          index: index,
           toggleCheckbox: (checkboxState) {
             taskData.toggleSingleTask(index);
           },
-          index: index,
         );
       },
       itemCount: listenableTaskData.length,

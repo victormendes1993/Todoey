@@ -10,10 +10,14 @@ class TaskTile extends StatelessWidget {
     required this.isChecked,
     required this.toggleCheckbox,
     required this.index,
+    required this.priority,
+    required this.category,
   });
 
   final String taskTitle;
   final bool isChecked;
+  final int priority;
+  final String category;
   final ValueChanged<bool?> toggleCheckbox;
   final int index;
 
@@ -24,7 +28,8 @@ class TaskTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Only listen to changes when necessary
-    final taskData = Provider.of<TaskData>(context);
+    final taskData = Provider.of<TaskData>(context, listen: false);
+    int id = Provider.of<TaskData>(context).getId(index);
 
     return Card(
       shape: RoundedRectangleBorder(
@@ -36,16 +41,16 @@ class TaskTile extends StatelessWidget {
       ),
       child: ListTile(
         subtitle: Text(
-          'Priority: ${taskData.getPriority(index)}\nCategory: ${taskData.getCategory(index)}',
+          'Priority: ${priority.toString()}\nCategory: $category\nId: $id',
         ),
-        leading: _buildMenu(context, taskData),
+        leading: _buildMenu(context, taskData, id),
         title: _buildTaskTitle(),
         trailing: _buildCheckbox(),
       ),
     );
   }
 
-  Widget _buildMenu(BuildContext context, TaskData taskData) {
+  Widget _buildMenu(BuildContext context, TaskData taskData, int id) {
     final MenuController menuController = MenuController();
 
     return MenuAnchor(
@@ -57,7 +62,7 @@ class TaskTile extends StatelessWidget {
         backgroundColor: WidgetStatePropertyAll(Colors.blueGrey.shade50),
       ),
       controller: menuController,
-      menuChildren: _buildMenuChildren(context, taskData),
+      menuChildren: _buildMenuChildren(context, taskData, id),
       child: IconButton(
         onPressed: menuController.open,
         icon: const Icon(Icons.more_vert),
@@ -65,7 +70,8 @@ class TaskTile extends StatelessWidget {
     );
   }
 
-  List<Widget> _buildMenuChildren(BuildContext context, TaskData taskData) {
+  List<Widget> _buildMenuChildren(
+      BuildContext context, TaskData taskData, int id) {
     return [
       MenuItemButton(
         onPressed: () => toggleCheckbox(true),
@@ -76,7 +82,7 @@ class TaskTile extends StatelessWidget {
         child: const Text('Edit'),
       ),
       MenuItemButton(
-        onPressed: () => taskData.deleteTaskByTitle(taskTitle),
+        onPressed: () => taskData.deleteTaskById(id),
         child: const Text('Delete'),
       ),
     ];
@@ -106,7 +112,10 @@ class TaskTile extends StatelessWidget {
     showModalBottomSheet(
       isScrollControlled: true,
       context: context,
-      builder: (context) => TaskSheet(initialTaskTitle: taskTitle),
+      builder: (context) => TaskSheet(
+        initialTaskTitle: taskTitle,
+        index: index,
+      ),
     );
   }
 }
