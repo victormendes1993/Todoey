@@ -91,8 +91,15 @@ class _TasksScreenState extends State<TasksScreen>
   Widget _buildTaskViewer(TaskData listenableTaskData) {
     return Expanded(
       child: Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Colors.white,
+              Colors.blueGrey.shade100,
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(20.0),
             topRight: Radius.circular(20.0),
@@ -112,7 +119,7 @@ class _TasksScreenState extends State<TasksScreen>
       itemBuilder: (context, index) {
         var taskData = Provider.of<TaskData>(context, listen: false);
         return TaskTile(
-          taskTitle: listenableTaskData.getName(index),
+          taskTitle: listenableTaskData.getTitle(index),
           isChecked: listenableTaskData.getIsDone(index),
           toggleCheckbox: (checkboxState) {
             taskData.toggleSingleTask(index);

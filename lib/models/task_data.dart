@@ -6,13 +6,47 @@ import 'package:todoey/widgets/alert_pop_up.dart';
 class TaskData extends ChangeNotifier {
   final List<Task> _tasks = [];
 
+  String _selectedPriority = 'Normal';
+  String _selectedCategory = 'No Category';
+
+  String getSelectedPriority() => _selectedPriority;
+
+  String getSelectedCategory() => _selectedCategory;
+
   List<Task> get tasks => _tasks;
 
   bool get isEmpty => _tasks.isEmpty;
 
   int get length => _tasks.length;
 
-  String getName(int index) => getTaskOfIndex(index).title;
+  String getTitle(int index) => getTaskOfIndex(index).title;
+
+  String getCategory(int index) => getTaskOfIndex(index).category;
+
+  String? getPriority(int index) {
+    int priority = getTaskOfIndex(index).priority;
+
+    switch (priority) {
+      case 1:
+        return 'High';
+      case 2:
+        return 'Normal';
+      case 3:
+        return 'Low';
+      default:
+        return null;
+    }
+  }
+
+  void setSelectedPriority(String priority) {
+    _selectedPriority = priority;
+    notifyListeners();
+  }
+
+  void setSelectedCategory(String category) {
+    _selectedCategory = category;
+    notifyListeners();
+  }
 
   bool getIsDone(int index) => getTaskOfIndex(index).isCompleted;
 
@@ -23,31 +57,45 @@ class TaskData extends ChangeNotifier {
     return _tasks[index];
   }
 
-  //TODO: Update editTaskTitle
-  bool editTaskTitle({
+  //Todo: Update the edit to priority and Category
+
+  //Finished Methods
+  Future<void> addNewTask(
+    String taskDescription, {
+    String category = '',
+    int priority = 2,
+  }) async {
+    final newTask = Task(
+      title: taskDescription,
+      category: category,
+      priority: priority,
+    );
+    _tasks.add(newTask);
+    await DatabaseHelper().addNewTask(newTask.toMap());
+    notifyListeners();
+  }
+
+  Future<bool> editTaskTitle({
     required String atTitle,
     required String newTaskDescription,
-  }) {
+    required int newPriority,
+    required String newCategory,
+  }) async {
     final index = _tasks.indexWhere((task) => task.title == atTitle);
     if (index != -1) {
       final task = getTaskOfIndex(index);
       task.title = newTaskDescription;
+      await DatabaseHelper().editTaskTitle(
+        atTitle,
+        newTaskDescription,
+        newPriority,
+        newCategory,
+      );
       notifyListeners();
       return true;
     }
     return false;
   }
-
-  //TODO: Update deleteTaskByTitle
-  void deleteTaskByTitle(String title) {
-    _tasks.removeWhere((task) => task.title == title);
-    notifyListeners();
-  }
-
-  //Todo: Create a setPriority method
-  //Todo: Create a setCategory method
-
-  //Finished Methods
 
   Future<void> toggleSingleTask(int index) async {
     final task = getTaskOfIndex(index);
@@ -65,21 +113,6 @@ class TaskData extends ChangeNotifier {
     notifyListeners(); // Notify listeners to update UI
   }
 
-  Future<void> addNewTask(
-    String taskDescription, {
-    String category = '',
-    int priority = 2,
-  }) async {
-    final newTask = Task(
-      title: taskDescription,
-      category: category,
-      priority: priority,
-    );
-    _tasks.add(newTask);
-    await DatabaseHelper().addNewTask(newTask.toMap());
-    notifyListeners();
-  }
-
   Future<void> toggleAllTasks() async {
     // Determine if all tasks are currently completed
     bool allCompleted = _tasks.every((task) => task.isCompleted);
@@ -90,6 +123,12 @@ class TaskData extends ChangeNotifier {
     }
     // Update all tasks in the database
     await DatabaseHelper().toggleAll(!allCompleted);
+    notifyListeners();
+  }
+
+  Future<void> deleteTaskByTitle(String title) async {
+    _tasks.removeWhere((task) => task.title == title);
+    await DatabaseHelper().deleteTaskByTitle(title);
     notifyListeners();
   }
 

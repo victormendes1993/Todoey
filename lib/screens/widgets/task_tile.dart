@@ -14,58 +14,50 @@ class TaskTile extends StatelessWidget {
 
   final String taskTitle;
   final bool isChecked;
-  final ValueChanged<bool?>
-      toggleCheckbox; // Use ValueChanged for better clarity
+  final ValueChanged<bool?> toggleCheckbox;
   final int index;
 
   static const double _cardRadius = 15.0;
   static const double _titleFontSize = 18.0;
-  static const Color _activeColor = Colors.lightBlueAccent;
+  static const Color _activeColorCheckBox = Colors.lightBlueAccent;
 
   @override
   Widget build(BuildContext context) {
-    var taskData = Provider.of<TaskData>(context, listen: false);
-    final MenuController menuController = MenuController();
+    // Only listen to changes when necessary
+    final taskData = Provider.of<TaskData>(context);
 
     return Card(
       shape: RoundedRectangleBorder(
+        side: const BorderSide(
+          color: Colors.lightBlueAccent,
+          strokeAlign: BorderSide.strokeAlignCenter,
+        ),
         borderRadius: BorderRadius.circular(_cardRadius),
       ),
-      color: Colors.blueGrey.shade50, // Correctly access shade50
       child: ListTile(
-        leading: _buildMenu(menuController, taskData, context),
+        subtitle: Text(
+          'Priority: ${taskData.getPriority(index)}\nCategory: ${taskData.getCategory(index)}',
+        ),
+        leading: _buildMenu(context, taskData),
         title: _buildTaskTitle(),
         trailing: _buildCheckbox(),
       ),
     );
   }
 
-  Widget _buildMenu(
-      MenuController menuController, TaskData taskData, BuildContext context) {
+  Widget _buildMenu(BuildContext context, TaskData taskData) {
+    final MenuController menuController = MenuController();
+
     return MenuAnchor(
       style: MenuStyle(
         shape: WidgetStatePropertyAll(RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(_cardRadius),
         )),
         padding: const WidgetStatePropertyAll(EdgeInsets.all(5.0)),
-        backgroundColor: WidgetStatePropertyAll(Colors.blueGrey.shade100),
+        backgroundColor: WidgetStatePropertyAll(Colors.blueGrey.shade50),
       ),
       controller: menuController,
-      menuChildren: [
-        MenuItemButton(
-          onPressed: () => toggleCheckbox(true),
-          child: const Text('Mark as done'),
-          //todo: Update UI to show Unmark as done or Mark as done
-        ),
-        MenuItemButton(
-          onPressed: () => _showEditTaskSheet(context), // Pass context here
-          child: const Text('Edit'),
-        ),
-        MenuItemButton(
-          onPressed: () => taskData.deleteTaskByTitle(taskTitle),
-          child: const Text('Delete'),
-        ),
-      ],
+      menuChildren: _buildMenuChildren(context, taskData),
       child: IconButton(
         onPressed: menuController.open,
         icon: const Icon(Icons.more_vert),
@@ -73,14 +65,31 @@ class TaskTile extends StatelessWidget {
     );
   }
 
+  List<Widget> _buildMenuChildren(BuildContext context, TaskData taskData) {
+    return [
+      MenuItemButton(
+        onPressed: () => toggleCheckbox(true),
+        child: const Text('Mark as done'),
+      ),
+      MenuItemButton(
+        onPressed: () => _showEditTaskSheet(context),
+        child: const Text('Edit'),
+      ),
+      MenuItemButton(
+        onPressed: () => taskData.deleteTaskByTitle(taskTitle),
+        child: const Text('Delete'),
+      ),
+    ];
+  }
+
   Widget _buildTaskTitle() {
     return Text(
       taskTitle,
       style: TextStyle(
         fontSize: _titleFontSize,
+        decorationColor: Colors.black,
         decoration:
             isChecked ? TextDecoration.lineThrough : TextDecoration.none,
-        decorationColor: Colors.black,
       ),
     );
   }
@@ -88,7 +97,7 @@ class TaskTile extends StatelessWidget {
   Widget _buildCheckbox() {
     return Checkbox(
       value: isChecked,
-      activeColor: _activeColor,
+      activeColor: _activeColorCheckBox,
       onChanged: toggleCheckbox,
     );
   }

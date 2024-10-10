@@ -18,8 +18,6 @@ class TaskSheet extends StatefulWidget {
 class _TaskSheetState extends State<TaskSheet> {
   final TextEditingController _taskController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
-  String selectedPriority = 'Normal';
-  String selectedCategory = 'No Category';
 
   @override
   void initState() {
@@ -66,7 +64,7 @@ class _TaskSheetState extends State<TaskSheet> {
           ),
         ),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+          //crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisSize: MainAxisSize.min,
           children: [
             const SizedBox(height: 20),
@@ -103,18 +101,12 @@ class _TaskSheetState extends State<TaskSheet> {
       textAlign: TextAlign.center,
       focusNode: _focusNode,
       decoration: InputDecoration(
-        border: textFormBorder,
-        enabledBorder: textFormBorder,
-        focusedBorder: textFormBorder,
+        border: borderBottomSheet,
+        enabledBorder: borderBottomSheet,
+        focusedBorder: borderBottomSheet,
         labelText: 'Enter task description',
-        labelStyle: TextStyle(
-          color: Colors.grey.shade500,
-          fontSize: 18.0,
-        ),
-        floatingLabelStyle: TextStyle(
-          color: Colors.lightBlueAccent,
-          fontSize: 20.0,
-        ),
+        labelStyle: lightGreyLabelBottomSheet,
+        floatingLabelStyle: blueFloatingLabelBottomSheet,
       ),
     );
   }
@@ -127,9 +119,8 @@ class _TaskSheetState extends State<TaskSheet> {
     ];
 
     void onPressed(String? selected) {
-      setState(() {
-        selectedPriority = selected!;
-      });
+      Provider.of<TaskData>(context, listen: false)
+          .setSelectedPriority(selected!);
     }
 
     return customDropDownMenu(
@@ -139,7 +130,6 @@ class _TaskSheetState extends State<TaskSheet> {
     );
   }
 
-  // The _buildDropDownCategoryMenu is already refactored, so no change needed here.
   Widget _buildDropDownCategoryMenu() {
     final List<DropdownMenuEntry<String>> items = [
       DropdownMenuEntry(value: 'Work', label: 'Work'),
@@ -154,9 +144,8 @@ class _TaskSheetState extends State<TaskSheet> {
     ];
 
     void onPressed(String? selected) {
-      setState(() {
-        selectedCategory = selected!;
-      });
+      Provider.of<TaskData>(context, listen: false)
+          .setSelectedCategory(selected!);
     }
 
     return customDropDownMenu(
@@ -174,10 +163,9 @@ class _TaskSheetState extends State<TaskSheet> {
     return DropdownMenu<String>(
       expandedInsets: EdgeInsets.zero,
       inputDecorationTheme: InputDecorationTheme(
-        enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.grey.shade400),
-          borderRadius: BorderRadius.all(Radius.circular(30.0)),
-        ),
+        labelStyle: lightGreyLabelBottomSheet,
+        floatingLabelStyle: blueFloatingLabelBottomSheet,
+        enabledBorder: borderBottomSheet,
       ),
       menuStyle: MenuStyle(
         backgroundColor: WidgetStatePropertyAll(Colors.grey.shade100),
@@ -189,9 +177,23 @@ class _TaskSheetState extends State<TaskSheet> {
   }
 
   Widget _buildSubmitButton(BuildContext context) {
+    int? priorityToInt() {
+      switch (
+          Provider.of<TaskData>(context, listen: false).getSelectedPriority()) {
+        case 'High':
+          return 1;
+        case 'Normal':
+          return 2;
+        case 'Low':
+          return 3;
+        default:
+          return null;
+      }
+    }
+
     return FilledButton(
       style: FilledButton.styleFrom(
-        backgroundColor: Colors.lightBlue,
+        backgroundColor: Colors.lightBlueAccent,
       ),
       onPressed: () {
         final taskDescription = _taskController.text;
@@ -212,11 +214,16 @@ class _TaskSheetState extends State<TaskSheet> {
           taskData.editTaskTitle(
             atTitle: widget.initialTaskTitle!,
             newTaskDescription: taskDescription,
+            newPriority: priorityToInt()!,
+            newCategory: Provider.of<TaskData>(context, listen: false)
+                .getSelectedCategory(),
           );
           Navigator.pop(context);
           return;
         }
-        taskData.addNewTask(taskDescription);
+        taskData.addNewTask(taskDescription,
+            priority: priorityToInt()!,
+            category: taskData.getSelectedCategory());
         Navigator.pop(context);
       },
       child: const Text('Send'),
