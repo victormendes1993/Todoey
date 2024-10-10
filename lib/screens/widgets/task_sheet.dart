@@ -114,6 +114,8 @@ class _TaskSheetState extends State<TaskSheet> {
     );
   }
 
+  //todo: Create a controller to show previously selected priority and category on edit task menu
+
   Widget _buildDropDownPriorityMenu() {
     final List<DropdownMenuEntry<int>> items = [
       DropdownMenuEntry(value: 1, label: 'High'),
