@@ -41,7 +41,7 @@ class TaskTile extends StatelessWidget {
       ),
       child: ListTile(
         subtitle: Text(
-          'Priority: ${priority.toString()}\nCategory: $category\nId: $id',
+          'Priority: ${taskData.getPriorityIntToString(priority)}\nCategory: $category\nId: $id',
         ),
         leading: _buildMenu(context, taskData, id),
         title: _buildTaskTitle(),

@@ -1,5 +1,3 @@
-// ignore_for_file: avoid_print
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:todoey/constants/constants.dart';
@@ -18,19 +16,30 @@ class TaskSheet extends StatefulWidget {
 
 class _TaskSheetState extends State<TaskSheet> {
   final TextEditingController _taskController = TextEditingController();
+  final TextEditingController _priorityController = TextEditingController();
+  final TextEditingController _categoryController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
+  late final TaskData taskData;
+  bool isInitialTaskTitleNull = true;
+
   int priority = 2;
   String category = 'No Category';
 
   @override
   void initState() {
     super.initState();
+    taskData = Provider.of<TaskData>(context, listen: false);
 
     // Initialize the controller with the current task title if in edit mode
     if (widget.initialTaskTitle != null) {
-      _taskController.text = widget.initialTaskTitle!;
-    }
+      isInitialTaskTitleNull = false;
 
+      _taskController.text = widget.initialTaskTitle!;
+      // Initialize priority and category with existing values
+      priority = taskData.getPriority(widget.index!);
+      _priorityController.text = taskData.getPriorityIntToString(priority);
+      _categoryController.text = taskData.getCategory(widget.index!);
+    }
     // Automatically request focus on the text field when the widget is built
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _focusNode.requestFocus();
@@ -40,6 +49,8 @@ class _TaskSheetState extends State<TaskSheet> {
   @override
   void dispose() {
     _taskController.dispose();
+    _categoryController.dispose();
+    _priorityController.dispose();
     _focusNode.dispose();
     super.dispose();
   }
@@ -67,14 +78,12 @@ class _TaskSheetState extends State<TaskSheet> {
           ),
         ),
         child: Column(
-          //crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisSize: MainAxisSize.min,
           children: [
             const SizedBox(height: 20),
             Text(
               textAlign: TextAlign.center,
               widget.initialTaskTitle == null ? 'Add Task' : 'Edit Task',
-              // Dynamic title
               style: const TextStyle(
                 fontSize: 20.0,
                 fontWeight: FontWeight.bold,
@@ -87,10 +96,8 @@ class _TaskSheetState extends State<TaskSheet> {
             const SizedBox(height: 30),
             _buildDropDownCategoryMenu(),
             const SizedBox(height: 30),
-            _buildSubmitButton(context),
+            _buildSubmitButton(),
             const SizedBox(height: 30),
-            //todo: Allow edits to the Category
-            //todo: Allow edits to the Priority
           ],
         ),
       ),
@@ -102,7 +109,7 @@ class _TaskSheetState extends State<TaskSheet> {
       cursorColor: Colors.lightBlueAccent,
       controller: _taskController,
       textAlign: TextAlign.center,
-      focusNode: _focusNode,
+      focusNode: isInitialTaskTitleNull ? _focusNode : null,
       decoration: InputDecoration(
         border: borderBottomSheet,
         enabledBorder: borderBottomSheet,
@@ -114,23 +121,25 @@ class _TaskSheetState extends State<TaskSheet> {
     );
   }
 
-  //todo: Create a controller to show previously selected priority and category on edit task menu
-
   Widget _buildDropDownPriorityMenu() {
-    final List<DropdownMenuEntry<int>> items = [
-      DropdownMenuEntry(value: 1, label: 'High'),
-      DropdownMenuEntry(value: 2, label: 'Normal'),
-      DropdownMenuEntry(value: 3, label: 'Low'),
+    final List<DropdownMenuEntry<String>> items = [
+      DropdownMenuEntry(value: 'High', label: 'High'),
+      DropdownMenuEntry(value: 'Normal', label: 'Normal'),
+      DropdownMenuEntry(value: 'Low', label: 'Low'),
     ];
 
-    void onPressed(int? selectedPriority) {
-      priority = selectedPriority!;
+    void onPressed(String? selectedPriority) {
+      setState(() {
+        _priorityController.text = selectedPriority!;
+        priority = taskData.getPriorityStringToInt(selectedPriority);
+      });
     }
 
-    return customDropDownMenu(
+    return customDropDownMenu<String>(
       items: items,
       onPressed: onPressed,
       label: 'Set Priority',
+      isPriority: true,
     );
   }
 
@@ -148,13 +157,17 @@ class _TaskSheetState extends State<TaskSheet> {
     ];
 
     void onPressed(String? selectedCategory) {
-      category = selectedCategory!;
+      setState(() {
+        category = selectedCategory!;
+        _categoryController.text = category;
+      });
     }
 
     return customDropDownMenu(
       items: items,
       onPressed: onPressed,
       label: 'Set Category',
+      isPriority: false,
     );
   }
 
@@ -162,8 +175,13 @@ class _TaskSheetState extends State<TaskSheet> {
     required List<DropdownMenuEntry<E>> items,
     required void Function(E?)? onPressed,
     required String label,
+    required bool isPriority,
   }) {
     return DropdownMenu<E>(
+      initialSelection: isPriority
+          ? _priorityController.text as E?
+          : _categoryController.text as E?,
+      controller: isPriority ? _priorityController : _categoryController,
       expandedInsets: EdgeInsets.zero,
       inputDecorationTheme: InputDecorationTheme(
         labelStyle: lightGreyLabelBottomSheet,
@@ -179,16 +197,14 @@ class _TaskSheetState extends State<TaskSheet> {
     );
   }
 
-  Widget _buildSubmitButton(BuildContext context) {
+  Widget _buildSubmitButton() {
     return FilledButton(
       style: FilledButton.styleFrom(
         backgroundColor: Colors.lightBlueAccent,
       ),
       onPressed: () {
         final taskDescription = _taskController.text;
-        final taskData = Provider.of<TaskData>(context, listen: false);
 
-        // Check for empty task description
         if (taskDescription.isEmpty) {
           AlertPopUp.showErrorAlert(
             context: context,
@@ -198,11 +214,10 @@ class _TaskSheetState extends State<TaskSheet> {
           return;
         }
 
-        // Edit existing task
         if (widget.initialTaskTitle != null && widget.index != null) {
           taskData.editTask(
             index: widget.index!,
-            newTaskDescription: taskDescription,
+            newTitle: taskDescription,
             newPriority: priority,
             newCategory: category,
           );

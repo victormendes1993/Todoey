@@ -49,7 +49,7 @@ class DatabaseHelper {
     ''');
   }
 
-  Future<int?> addNewTask(Map<String, dynamic> task) async {
+  Future<int?> insert(Map<String, dynamic> task) async {
     final db = await database;
     try {
       return await db.insert('tasks', task);
@@ -85,7 +85,7 @@ class DatabaseHelper {
     );
   }
 
-  Future<void> toggleTaskCompletion(int? id, bool isCompleted) async {
+  Future<void> updateCheckbox(int? id, bool isCompleted) async {
     try {
       final db = await database;
       await db.update(
@@ -99,7 +99,7 @@ class DatabaseHelper {
     }
   }
 
-  Future<void> toggleAll(bool isCompleted) async {
+  Future<void> updateAllCheckbox(bool isCompleted) async {
     final db = await database;
 
     Batch batch = db.batch();
@@ -113,7 +113,7 @@ class DatabaseHelper {
     await batch.commit(noResult: true);
   }
 
-  Future<void> deleteTaskById(int id) async {
+  Future<void> delete(int id) async {
     final db = await database;
     await db.delete(
       'tasks',
@@ -122,7 +122,7 @@ class DatabaseHelper {
     );
   }
 
-  Future<void> editTask(
+  Future<void> update(
     int id,
     String newTitle,
     int newPriority,

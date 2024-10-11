@@ -8,15 +8,41 @@ class TaskData extends ChangeNotifier {
 
   List<Task> get tasks => _tasks;
 
-  bool get isEmpty => _tasks.isEmpty;
+  bool get isListEmpty => _tasks.isEmpty;
 
-  int get length => _tasks.length;
+  int get listLength => _tasks.length;
 
   String getTitle(int index) => getTaskOfIndex(index).title;
   String getCategory(int index) => getTaskOfIndex(index).category;
   int getPriority(int index) => getTaskOfIndex(index).priority;
   int getId(int index) => getTaskOfIndex(index).id;
   bool getIsDone(int index) => getTaskOfIndex(index).isCompleted;
+
+  String getPriorityIntToString(int priority) {
+    switch (priority) {
+      case 1:
+        return 'High';
+      case 2:
+        return 'Normal';
+      case 3:
+        return 'Low';
+      default:
+        return 'Normal'; // Default case
+    }
+  }
+
+  int getPriorityStringToInt(String label) {
+    switch (label) {
+      case 'High':
+        return 1;
+      case 'Normal':
+        return 2;
+      case 'Low':
+        return 3;
+      default:
+        return 2; // Default to 'Normal'
+    }
+  }
 
   Task getTaskOfIndex(int index) {
     if (index < 0 || index >= _tasks.length) {
@@ -27,34 +53,34 @@ class TaskData extends ChangeNotifier {
 
   //Finished Methods
   Future<void> addNewTask(
-    String taskDescription, {
+    String title, {
     String category = '',
     int priority = 2,
   }) async {
-    final newTask = Task(
-      title: taskDescription,
+    final task = Task(
+      title: title,
       category: category,
       priority: priority,
     );
-    int? newTaskId = await DatabaseHelper().addNewTask(newTask.toMap());
-    newTask.id = newTaskId ?? 0;
-    _tasks.add(newTask);
+    int? id = await DatabaseHelper().insert(task.toMap());
+    task.id = id ?? 0;
+    _tasks.add(task);
     notifyListeners();
   }
 
   Future<void> editTask({
     required int index,
-    required String newTaskDescription,
+    required String newTitle,
     required int newPriority,
     required String newCategory,
   }) async {
-    final Task task = getTaskOfIndex(index);
-    task.title = newTaskDescription;
+    final task = getTaskOfIndex(index);
+    task.title = newTitle;
     task.priority = newPriority;
     task.category = newCategory;
-    await DatabaseHelper().editTask(
-      task.id,
-      newTaskDescription,
+    await DatabaseHelper().update(
+      task.id, //Used as argument for whereArgs
+      newTitle,
       newPriority,
       newCategory,
     );
@@ -64,7 +90,7 @@ class TaskData extends ChangeNotifier {
   Future<void> toggleSingleTask(int index) async {
     final task = getTaskOfIndex(index);
     task.isCompleted = !task.isCompleted; // Toggle completion
-    await DatabaseHelper().toggleTaskCompletion(task.id, task.isCompleted);
+    await DatabaseHelper().updateCheckbox(task.id, task.isCompleted);
     notifyListeners();
   }
 
@@ -86,18 +112,18 @@ class TaskData extends ChangeNotifier {
       task.isCompleted = !allCompleted;
     }
     // Update all tasks in the database
-    await DatabaseHelper().toggleAll(!allCompleted);
+    await DatabaseHelper().updateAllCheckbox(!allCompleted);
     notifyListeners();
   }
 
   Future<void> deleteTaskById(int id) async {
     _tasks.removeWhere((task) => task.id == id);
-    await DatabaseHelper().deleteTaskById(id);
+    await DatabaseHelper().delete(id);
     notifyListeners();
   }
 
   Future<void> deleteCompletedTasks(BuildContext context) async {
-    if (isEmpty) {
+    if (isListEmpty) {
       AlertPopUp.showErrorAlert(
         context: context,
         title: 'Empty List',
