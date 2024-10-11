@@ -92,8 +92,8 @@ class _TasksScreenState extends State<TasksScreen>
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              Colors.white,
-              Colors.blueGrey.shade100,
+              Colors.blueGrey.shade200,
+              Colors.blueGrey,
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,

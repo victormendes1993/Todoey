@@ -3,6 +3,11 @@ import 'package:provider/provider.dart';
 import 'package:todoey/models/task_data.dart';
 import 'package:todoey/screens/widgets/task_sheet.dart';
 
+//todo: Fix why TaskTile doesn't correctly display the color
+//todo: Update [TaskTile] to click and show more information such as priority and category
+//todo: Create a filter button
+//todo:Have filter button show items by filter selection
+
 class TaskTile extends StatelessWidget {
   const TaskTile({
     super.key,
@@ -27,26 +32,29 @@ class TaskTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Only listen to changes when necessary
     final taskData = Provider.of<TaskData>(context, listen: false);
     int id = Provider.of<TaskData>(context).getId(index);
 
-    return Card(
-      shape: RoundedRectangleBorder(
+    return ListTile(
+      hoverColor: Colors.teal,
+      focusColor: Colors.teal,
+      selected: true,
+      selectedTileColor: Colors.red,
+      tileColor: Colors.green,
+      /*shape: RoundedRectangleBorder(
         side: const BorderSide(
+          width: 1.0,
           color: Colors.lightBlueAccent,
-          strokeAlign: BorderSide.strokeAlignCenter,
+          strokeAlign: BorderSide.strokeAlignOutside,
         ),
         borderRadius: BorderRadius.circular(_cardRadius),
-      ),
-      child: ListTile(
-        subtitle: Text(
-          'Priority: ${taskData.getPriorityIntToString(priority)}\nCategory: $category\nId: $id',
-        ),
-        leading: _buildMenu(context, taskData, id),
-        title: _buildTaskTitle(),
-        trailing: _buildCheckbox(),
-      ),
+      ),*/
+      /*subtitle: Text(
+        'Priority: ${taskData.getPriorityIntToString(priority)}\nCategory: $category\nId: $id',
+      ),*/
+      leading: _buildMenu(context, taskData, id),
+      title: _buildTaskTitle(),
+      trailing: _buildCheckbox(),
     );
   }
 
