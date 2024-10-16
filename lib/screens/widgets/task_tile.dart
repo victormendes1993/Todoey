@@ -3,10 +3,10 @@ import 'package:provider/provider.dart';
 import 'package:todoey/models/task_data.dart';
 import 'package:todoey/screens/widgets/task_sheet.dart';
 
-//todo: Fix why TaskTile doesn't correctly display the color
 //todo: Update [TaskTile] to click and show more information such as priority and category
-//todo: Create a filter button
-//todo:Have filter button show items by filter selection
+//todo: Have filter button show items by filter selection
+//todo: Correct 'mark as done' to show mark and unmark
+//todo: Persist filters to database
 
 class TaskTile extends StatelessWidget {
   const TaskTile({
@@ -35,26 +35,25 @@ class TaskTile extends StatelessWidget {
     final taskData = Provider.of<TaskData>(context, listen: false);
     int id = Provider.of<TaskData>(context).getId(index);
 
-    return ListTile(
-      hoverColor: Colors.teal,
-      focusColor: Colors.teal,
-      selected: true,
-      selectedTileColor: Colors.red,
-      tileColor: Colors.green,
-      /*shape: RoundedRectangleBorder(
-        side: const BorderSide(
-          width: 1.0,
-          color: Colors.lightBlueAccent,
-          strokeAlign: BorderSide.strokeAlignOutside,
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 5.0),
+      child: Material(
+        color: Colors.transparent,
+        child: ListTile(
+          onLongPress: () {},
+          selectedTileColor: Colors.red,
+          tileColor: Colors.blueGrey.shade200,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(_cardRadius),
+          ),
+          /*subtitle: Text(
+            'Priority: ${taskData.getPriorityIntToString(priority)}\nCategory: $category\nId: $id',
+          ),*/
+          leading: _buildMenu(context, taskData, id),
+          title: _buildTaskTitle(),
+          trailing: _buildCheckbox(),
         ),
-        borderRadius: BorderRadius.circular(_cardRadius),
-      ),*/
-      /*subtitle: Text(
-        'Priority: ${taskData.getPriorityIntToString(priority)}\nCategory: $category\nId: $id',
-      ),*/
-      leading: _buildMenu(context, taskData, id),
-      title: _buildTaskTitle(),
-      trailing: _buildCheckbox(),
+      ),
     );
   }
 

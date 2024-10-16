@@ -5,6 +5,7 @@ import 'package:todoey/screens/widgets/task_sheet.dart';
 
 class FabBuilder extends StatefulWidget {
   const FabBuilder({super.key, required this.taskData});
+
   final TaskData taskData;
 
   @override
@@ -13,13 +14,16 @@ class FabBuilder extends StatefulWidget {
 
 class _FabBuilderState extends State<FabBuilder> {
   final fabKey = GlobalKey<ExpandableFabState>();
+
   @override
   Widget build(BuildContext context) {
     return ExpandableFab(
       type: ExpandableFabType.up,
       pos: ExpandableFabPos.right,
       overlayStyle: ExpandableFabOverlayStyle(
-          color: Colors.blueGrey.withOpacity(0.3), blur: 5.0),
+        color: Colors.black87,
+        blur: 5.0,
+      ),
       key: fabKey,
       distance: 80,
       openButtonBuilder: _buildOpenFab(),
@@ -123,7 +127,7 @@ class _FabBuilderState extends State<FabBuilder> {
   Text _buildFabChildrenDescription(String? title) {
     return Text(
       title!,
-      style: TextStyle(color: Colors.blueGrey),
+      style: TextStyle(color: Colors.white),
     );
   }
 

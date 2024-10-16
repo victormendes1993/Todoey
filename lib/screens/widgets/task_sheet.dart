@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:todoey/constants/constants.dart';
+import 'package:todoey/models/filter_data.dart';
 import 'package:todoey/models/task_data.dart';
-import 'package:todoey/widgets/alert_pop_up.dart';
+import 'package:todoey/screens/widgets/alert_pop_up.dart';
 
 class TaskSheet extends StatefulWidget {
   const TaskSheet({super.key, this.initialTaskTitle, this.index});
@@ -21,7 +22,6 @@ class _TaskSheetState extends State<TaskSheet> {
   final FocusNode _focusNode = FocusNode();
   late final TaskData taskData;
   bool isInitialTaskTitleNull = true;
-
   int priority = 2;
   String category = 'No Category';
 
@@ -92,9 +92,9 @@ class _TaskSheetState extends State<TaskSheet> {
             const SizedBox(height: 30),
             _buildTextField(),
             const SizedBox(height: 30),
-            _buildDropDownPriorityMenu(),
+            _buildPriorityMenu(),
             const SizedBox(height: 30),
-            _buildDropDownCategoryMenu(),
+            _buildCategoryMenu(context),
             const SizedBox(height: 30),
             _buildSubmitButton(),
             const SizedBox(height: 30),
@@ -121,7 +121,7 @@ class _TaskSheetState extends State<TaskSheet> {
     );
   }
 
-  Widget _buildDropDownPriorityMenu() {
+  Widget _buildPriorityMenu() {
     final List<DropdownMenuEntry<String>> items = [
       DropdownMenuEntry(value: 'High', label: 'High'),
       DropdownMenuEntry(value: 'Normal', label: 'Normal'),
@@ -143,24 +143,54 @@ class _TaskSheetState extends State<TaskSheet> {
     );
   }
 
-  Widget _buildDropDownCategoryMenu() {
-    final List<DropdownMenuEntry<String>> items = [
-      DropdownMenuEntry(value: 'Work', label: 'Work'),
-      DropdownMenuEntry(value: 'Home', label: 'Home'),
-      DropdownMenuEntry(value: 'Office', label: 'Office'),
-      DropdownMenuEntry(value: 'School', label: 'School'),
-      DropdownMenuEntry(
-        value: 'Add New',
-        label: 'Add New',
-        trailingIcon: Icon(Icons.add),
-      ),
-    ];
+  Widget _buildCategoryMenu(BuildContext context) {
+    FilterData listenableFilterData = Provider.of<FilterData>(context);
+    FilterData filterData = Provider.of<FilterData>(context, listen: false);
+
+    List<DropdownMenuEntry<String>> items =
+        listenableFilterData.categoryMenuEntries.map(
+      (category) {
+        return DropdownMenuEntry(
+          value: category,
+          label: category,
+        );
+      },
+    ).toList();
 
     void onPressed(String? selectedCategory) {
-      setState(() {
-        category = selectedCategory!;
-        _categoryController.text = category;
-      });
+      if (selectedCategory == 'Add New') {
+        //Alert(context: context);
+        showDialog(
+            barrierColor: Colors.black87,
+            context: context,
+            builder: (context) {
+              String newCategory = '';
+              return AlertDialog(
+                title: Text('Add Category'),
+                content: TextField(
+                  onChanged: (value) {
+                    newCategory = value;
+                  },
+                ),
+                actions: [
+                  TextButton(
+                    child: Text('Add'),
+                    onPressed: () {
+                      if (newCategory.isNotEmpty) {
+                        filterData.addCategory(newCategory);
+                        Navigator.pop(context);
+                      }
+                    },
+                  ),
+                ],
+              );
+            });
+      } else {
+        setState(() {
+          category = selectedCategory!;
+          _categoryController.text = category;
+        });
+      }
     }
 
     return customDropDownMenu(

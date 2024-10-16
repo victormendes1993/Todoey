@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:todoey/models/database_helper.dart';
 import 'package:todoey/models/task.dart';
-import 'package:todoey/widgets/alert_pop_up.dart';
+import 'package:todoey/screens/widgets/alert_pop_up.dart';
 
 class TaskData extends ChangeNotifier {
   final List<Task> _tasks = [];
@@ -13,9 +13,13 @@ class TaskData extends ChangeNotifier {
   int get listLength => _tasks.length;
 
   String getTitle(int index) => getTaskOfIndex(index).title;
+
   String getCategory(int index) => getTaskOfIndex(index).category;
+
   int getPriority(int index) => getTaskOfIndex(index).priority;
+
   int getId(int index) => getTaskOfIndex(index).id;
+
   bool getIsDone(int index) => getTaskOfIndex(index).isCompleted;
 
   String getPriorityIntToString(int priority) {
